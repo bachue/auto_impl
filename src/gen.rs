@@ -528,9 +528,10 @@ fn gen_const_item(
     // We simply use the associated const from our type parameter.
     let const_name = &item.ident;
     let const_ty = &item.ty;
+    let attrs = &item.attrs;
 
     Ok(quote! {
-        const #const_name: #const_ty = #proxy_ty_param::#const_name;
+        #(#attrs)* const #const_name: #const_ty = #proxy_ty_param::#const_name;
     })
 }
 
@@ -560,9 +561,10 @@ fn gen_type_item(
 
     // We simply use the associated type from our type parameter.
     let assoc_name = &item.ident;
+    let attrs = &item.attrs;
 
     Ok(quote! {
-        type #assoc_name = #proxy_ty_param::#assoc_name;
+        #(#attrs)* type #assoc_name = #proxy_ty_param::#assoc_name;
     })
 }
 
@@ -597,6 +599,7 @@ fn gen_method_item(
     // Determine the kind of the method, determined by the self type.
     let sig = &item.sig;
     let self_arg = SelfType::from_sig(sig);
+    let attrs = &item.attrs;
 
     // Check self type and proxy type combination
     check_receiver_compatible(proxy_type, self_arg, &trait_def.ident, sig.span().into());
@@ -669,9 +672,8 @@ fn gen_method_item(
     };
 
     // Combine body with signature
-    Ok(quote! { #sig { #body }})
+    Ok(quote! { #(#attrs)* #sig { #body }})
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SelfType {
